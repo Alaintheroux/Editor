@@ -37,12 +37,12 @@ void ExtendedSerialGets();
 
 char shead[] = "Editor v0.2.3d   ";
 char sline[]="  +--------------------------------------------------------------+   ";
-char sMenu1[] = "(c)opy (p)aste (i)nsert (x)delete (t)op (l)ast (4-arrows) <Bs> <Del> ! $";
+char sMenu1[] = "(c)opy (p)aste (i)nsert (x)delete (t)op (l)ast (4-arrows) <Bs> <Del> !";
 char sMenu2[] = "(N)ext-bloc (P)rev-bloc (B)loc (C)lear (R)efresh (L)oad (S)ave (Q)uit ";
-
+char  sQuit[]=" Quit";
 char sBottom[]= "[B" ;
 char sRight[]=  "[C" ;
-char sLeft[]=  "[D" ;   // ?? test
+char sLeft[]=  "[D" ;   
 char sHome[]=   "[1H" ;
 char sClr[]=    "[2J" ;
 
@@ -76,12 +76,8 @@ void EraseBloc(){
 
 void scrRefresh(){
   if(editorMode==0){
-    moveCursorHome(); clrScreen(); 
-  }
-  else{
-    for(short i=0; i < 25; i++)
-      printLn();
-  }
+    moveCursorHome(); clrScreen();
+  } 
 }
    
 void displayBloc(){
@@ -90,7 +86,7 @@ void displayBloc(){
   scrRefresh();
   printS(shead); printS(" Bloc:"); printN(blocID);  printChar(' ');
   printS(fileName); printS("    Mode:");printChar((char)dirty); printChar(editorMode); 
-        printS("        "); if(showcase) printChar('!');  printLn();
+  printS("        "); if(showcase) printChar('!');  printLn();
   printS(sline); printLn();
   for(l=0;l<NOL; l++){   //16  24
     printChar('|'); 
@@ -124,7 +120,7 @@ void editorLine(){
     if(line[0] == 0) { // empty line    13
       currentLine++;
       if(currentLine==NOL) {
-        currentLine --;   // --- 32 31 24
+        currentLine --;   //
       }
       displayBloc(); 
     }
@@ -151,15 +147,12 @@ short blocWrite(short b){      // 0 = success, 1 = error
 }
 
 // this editor is a stream and with little modification can work with other task simultanously
-char  sQuit[]=" Quit";
-short col=0;
 
 void editorMain(){
   char c;
   char tmp[8];
   char copyline[64];                                       // for copy-paste line
   short i,bid,z;
-  //scrRefresh();
   blocID=0;
   char dirty=' ';
   displayBloc();
@@ -171,7 +164,6 @@ void editorMain(){
     while(charAvailable()){
         c =getChar();
         if(c == 27) { 
-            //Serial.print(" ESC>");  
             while(!charAvailable()); c=getChar();//Serial.print((int)c); 
             if(c != 91) break;
             while(!charAvailable()); c=getChar();printN((int)c); 
@@ -183,10 +175,9 @@ void editorMain(){
             }
          }
         switch(c){ 
-                case('u'): if(currentLine>0) currentLine--; displayBloc();col=0; break;    // up one line
-                case('d'): dirty='*'; if(currentLine<(NOL-1)) currentLine++; col=0;;displayBloc(); break;   // down one line -- 15
+                case('u'): if(currentLine>0) currentLine--; displayBloc(); break;    // up one line
+                case('d'): dirty='*'; if(currentLine<(NOL-1)) currentLine++; displayBloc(); break;   // down one line -- 15
                 case('!'): if(showcase) showcase=0; else showcase=1; displayBloc(); break;
-                case('$'): if(editorMode==0) editorMode=1; else editorMode=0;break;        // Enable or disable <ESC> sequence in editor
                 case('l'): currentLine=NOL-1; displayBloc(); break;                      // last line  --15
                 case('t'): currentLine=0; displayBloc(); break;                       // top of page, first line
                 case('x'): dirty='*';
@@ -239,8 +230,7 @@ void editorMain(){
                       displayBloc();
                       break;
                 case('B'):
-                      printS("Bloc ? "); ExtendedSerialGets();  
-                      strncpy(tmp, line, 6);
+                      printS("Bloc ? "); SerialGets(6, tmp);
                       z = atoi(tmp);
                       if(z<0  || z>511) blocID=0; else blocID=z;
                       if(dirty=='*') {
@@ -278,8 +268,6 @@ void editorMain(){
                 case('Q'):
                       // Update file when file save/load is implemented
                       return;   //exit main edit
-                      break;
-                
                 case(13): dirty = '*';            // CR or cursor-right
                     editorLine(); break;
         } 
@@ -287,7 +275,7 @@ void editorMain(){
  } // do-while1
 }
 
-void ExtendedSerialGets(){           // until CR then end by null(0). No handling for timeout for the moment... Return -1 on timeout or string len??
+void ExtendedSerialGets(){  
 char c;
 int t ,index=0;
     strncpy(&line[0], &bloc[currentLine*64], 64);      // copy previous content of line
@@ -307,19 +295,12 @@ int t ,index=0;
                     case('D'): if(index >0) {index--; moveCursorLeft(); }
                                break;  //left      
                     case('3'):
-                              line[63]=' ';
-                              for(t=index; t<64; t++){
-                                line[t]=line[t+1];
+                              line[63]='0';
+                              for(t=index; t<63; t++){
+                                line[t]=' ';
                               }
-                              line[63]=' ';line[64]=0;
-                              printChar(' ');
-                              printChar((char)13);printS("|$"); printS(&line[0]);
-                              printChar((char)13);
-                                for(t=0; t<index+1 ; t++)
-                                   moveCursorRight();
-                              moveCursorLeft(); index--;
-                              break;
-                              defaut: ;
+                              displayBloc();
+                              break; //return;
                   }
                 }
                 else{         // ESC key and not cursor arrows. Esc keep the remaining of line. Enter cut the line
