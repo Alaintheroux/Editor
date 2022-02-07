@@ -1,6 +1,6 @@
-# Editor v0.23d
-# (C)2022 Alain Theroux
-#License: You can do what you want with this code but leave these three lines.
+Editor v0.23d
+(C)2022 Alain Theroux
+License: You can do what you want with this code but leave these three lines.
 
 A simple VTTY editor that works with a simple terminal program such as Putty.
 It is useful to add editor facility with your own program such as a shell or interpreter.
@@ -19,22 +19,9 @@ This is the main screen of the editor:
 Editor v0.2.3d    Bloc:0     Mode:*
   +--------------------------------------------------------------+
 |>
-|
-|
-|
-|
-|
-|
-|
-|
-|
-|
-|
-|
-|
-|
-|
+        (x 16 lines)
   +--------------------------------------------------------------+
+  
 (c)opy (p)aste (i)nsert (x)delete (t)op (l)ast (4-arrows) <Bs> <Del> !
 (N)ext-bloc (P)rev-bloc (B)loc (C)lear (R)efresh (L)oad (S)ave (Q)uit
   
